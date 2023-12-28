@@ -101,3 +101,75 @@ class Product:
         self.set_quantity(self.quantity - quantity)
 
         return total_price
+
+
+class NonStockedProduct(Product):
+    """ Represents a non-stocked product in the store """
+    def __init__(self, name, price):
+        # Call the constructor of the parent class
+        super().__init__(name, price, quantity=0)
+
+    def show(self) -> str:
+        """
+        Overrides the show method to display the special characteristics of non-stocked products.
+
+        Returns:
+            str: A string representation of the non-stocked product.
+        """
+        return f"{self.name}, Price: {self.price}, Quantity: Not Applicable (Non-Stocked)"
+
+
+class LimitedProduct(Product):
+    """
+    Represents a product with a limited purchase quantity in the store.
+
+    Attributes:
+        maximum (int): The maximum quantity allowed for purchase.
+    """
+    def __init__(self, name, price, quantity, maximum):
+        """
+        Initializes a new LimitedProduct instance.
+
+        Args:
+            name (str): The name of the product.
+            price (float): The price of the product.
+            quantity (int): The initial quantity of the product.
+            maximum (int): The maximum quantity allowed for purchase.
+
+        Raises:
+            ValueError: If max_quantity is not a positive integer.
+        """
+        # Call the constructor of the parent class
+        super().__init__(name, price, quantity)
+
+        if not isinstance(maximum, int) or maximum <= 0:
+            raise ValueError("max_quantity must be a positive integer.")
+
+        self.maximum = maximum
+
+    def show(self) -> str:
+        """
+        Overrides the show method to display the special characteristics of limited products.
+
+        Returns:
+            str: A string representation of the limited product.
+        """
+        return f"{self.name}, Price: {self.price}, Quantity: {self.quantity}, Max Quantity: {self.maximum}"
+
+    def buy(self, quantity) -> float:
+        """
+        Overrides the buy method to handle limited purchase quantity.
+
+        Args:
+            quantity: The quantity to buy.
+
+        Returns:
+            float: The total price of the purchase.
+
+        Raises:
+            ValueError: If the quantity exceeds the maximum allowed quantity.
+        """
+        if quantity > self.maximum:
+            raise ValueError(f"Quantity exceeds the maximum allowed quantity ({self.maximum}).")
+
+        return super().buy(quantity)
