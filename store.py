@@ -1,5 +1,5 @@
 from typing import List, Tuple
-from products import Product
+from products import Product, NonStockedProduct
 
 
 class Store:
@@ -72,7 +72,9 @@ class Store:
         total_cost = 0.0
 
         for product, quantity in shopping_list:
-            if product in self.products and product.is_active():
+            if isinstance(product, NonStockedProduct) and product.is_active():
+                total_cost += product.buy(quantity)
+            elif product in self.products and product.is_active():
                 if quantity > product.quantity:
                     raise ValueError(f"Not enough stock for {product.name}.")
                 total_cost += product.buy(quantity)

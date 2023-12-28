@@ -118,6 +118,20 @@ class NonStockedProduct(Product):
         """
         return f"{self.name}, Price: {self.price}, Quantity: Not Applicable (Non-Stocked)"
 
+    def buy(self, quantity) -> float:
+        """
+        Overrides the buy method to handle purchasing of a non-stocked product.
+
+        Args:
+            quantity: The quantity to buy.
+
+        Returns:
+            float: The total price of the purchase.
+        """
+
+        # For non-stocked products, quantity is not relevant; proceed with the purchase
+        return self.price * quantity
+
 
 class LimitedProduct(Product):
     """
