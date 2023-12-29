@@ -119,10 +119,11 @@ class Product:
         if not self.is_active():
             raise ValueError("Product is not active. Cannot make a purchase.")
 
-        if quantity <= 0 or quantity > self.quantity:
+        if quantity > self.quantity:
             raise ValueError("Invalid quantity for purchase.")
 
         if self.promotion:
+            self.set_quantity(self.quantity - quantity)
             return self.promotion.apply_promotion(self, quantity)
         else:
             total_price = quantity * self.price
@@ -158,7 +159,10 @@ class NonStockedProduct(Product):
         """
 
         # For non-stocked products, quantity is not relevant; proceed with the purchase
-        return self.price * quantity
+        if self.promotion:
+            return self.promotion.apply_promotion(self, quantity)
+        else:
+            return self.price * quantity
 
 
 class LimitedProduct(Product):
@@ -197,7 +201,8 @@ class LimitedProduct(Product):
             str: A string representation of the limited product.
         """
         promotion_info = f", Promotion: {self.promotion.name}" if self.promotion else ""
-        return f"{self.name}, Price: {self.price}, Quantity: {self.quantity}, Max Quantity: {self.maximum}{promotion_info}"
+        return f"{self.name}, Price: {self.price}, Quantity: {self.quantity}, " \
+               f"Max Quantity: {self.maximum}{promotion_info}"
 
     def buy(self, quantity) -> float:
         """
@@ -215,4 +220,8 @@ class LimitedProduct(Product):
         if quantity > self.maximum:
             raise ValueError(f"Quantity exceeds the maximum allowed quantity ({self.maximum}).")
 
-        return super().buy(quantity)
+        if self.promotion:
+            self.set_quantity(self.quantity - quantity)
+            return self.promotion.apply_promotion(self, quantity)
+        else:
+            return super().buy(quantity)
