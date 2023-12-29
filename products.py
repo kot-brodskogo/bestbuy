@@ -1,3 +1,6 @@
+from promotions import Promotion
+
+
 class Product:
     """
         Represents a product in the store.
@@ -23,6 +26,7 @@ class Product:
         self.price = price
         self.quantity = quantity
         self.active = True
+        self.promotion = None  # Initialize promotion to None
 
     def get_quantity(self) -> float:
         """
@@ -69,18 +73,39 @@ class Product:
         """ Deactivates the product. """
         self.active = False
 
+    def set_promotion(self, promotion: Promotion):
+        """
+        Sets the promotion for the product.
+
+        Args:
+            promotion: The promotion instance to set.
+        """
+        self.promotion = promotion
+
+    def get_promotion(self) -> Promotion:
+        """
+        Gets the current promotion for the product.
+
+        Returns:
+            Promotion: The current promotion instance.
+        """
+        return self.promotion
+
     def show(self) -> str:
         """
-            Returns a string representation of the product.
+            Returns a string representation of the product,
+            including the current promotion if exists.
 
             Returns:
                 str: A string representation of the product.
             """
-        return f"{self.name}, Price: {self.price}, Quantity: {self.quantity}"
+        promotion_info = f", Promotion: {self.promotion.name}" if self.promotion else ""
+        return f"{self.name}, Price: {self.price}, Quantity: {self.quantity}{promotion_info}"
 
     def buy(self, quantity) -> float:
         """
-            Buys a given quantity of the product.
+            Buys a given quantity of the product,
+            applying the promotion if it exists.
 
             Args:
                 quantity: The quantity to buy.
@@ -97,10 +122,12 @@ class Product:
         if quantity <= 0 or quantity > self.quantity:
             raise ValueError("Invalid quantity for purchase.")
 
-        total_price = quantity * self.price
-        self.set_quantity(self.quantity - quantity)
-
-        return total_price
+        if self.promotion:
+            return self.promotion.apply_promotion(self, quantity)
+        else:
+            total_price = quantity * self.price
+            self.set_quantity(self.quantity - quantity)
+            return total_price
 
 
 class NonStockedProduct(Product):
@@ -116,7 +143,8 @@ class NonStockedProduct(Product):
         Returns:
             str: A string representation of the non-stocked product.
         """
-        return f"{self.name}, Price: {self.price}, Quantity: Not Applicable (Non-Stocked)"
+        promotion_info = f", Promotion: {self.promotion.name}" if self.promotion else ""
+        return f"{self.name}, Price: {self.price}, Quantity: Not Applicable (Non-Stocked){promotion_info}"
 
     def buy(self, quantity) -> float:
         """
@@ -168,7 +196,8 @@ class LimitedProduct(Product):
         Returns:
             str: A string representation of the limited product.
         """
-        return f"{self.name}, Price: {self.price}, Quantity: {self.quantity}, Max Quantity: {self.maximum}"
+        promotion_info = f", Promotion: {self.promotion.name}" if self.promotion else ""
+        return f"{self.name}, Price: {self.price}, Quantity: {self.quantity}, Max Quantity: {self.maximum}{promotion_info}"
 
     def buy(self, quantity) -> float:
         """
